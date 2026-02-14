@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 50px auto; padding: 30px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+    <h1 style="font-family: 'Pacifico', cursive; color: #ff6b81; text-align: center; margin-bottom: 30px;">Your Sweet Cart 🛒</h1>
+
+    {% if cart_items %}
+        <table style="width: 100%; border-collapse: separate; border-spacing: 0 15px;">
+            <thead>
+                <tr style="color: #666; font-size: 0.9rem;">
+                    <th style="padding: 10px; text-align: left;">Product</th>
+                    <th style="padding: 10px;">Price</th>
+                    <th style="padding: 10px;">Quantity</th>
+                    <th style="padding: 10px;">Total</th>
+                    <th style="padding: 10px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr style="background: #fff0f3; border-radius: 10px;">
+                    <td style="padding: 15px; border-radius: 10px 0 0 10px;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 10px;">
+                            {% endif %}
+                            <b style="color: #444;">{{ item.product.name }}</b>
+                        </div>
+                    </td>
+                    <td style="text-align: center; color: #666;">৳{{ item.product.price }}</td>
+                    
+                    <td style="text-align: center;">
+                        <div style="display: inline-flex; align-items: center; background: white; border-radius: 20px; padding: 5px 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                            <a href="{% url 'update_cart' item.id 'decrease' %}" style="color: #ff6b81; text-decoration: none; font-weight: bold; padding: 0 8px; font-size: 1.2rem;">−</a>
+                            <span style="font-weight: bold; padding: 0 10px; color: #444;">{{ item.quantity }}</span>
+                            <a href="{% url 'update_cart' item.id 'increase' %}" style="color: #ff6b81; text-decoration: none; font-weight: bold; padding: 0 8px; font-size: 1.2rem;">+</a>
+                        </div>
+                    </td>
+                    
+                    <td style="text-align: center; font-weight: bold; color: #ff6b81;">৳{{ item.total_cost }}</td>
+                    <td style="text-align: center; border-radius: 0 10px 10px 0;">
+                        <a href="{% url 'remove_from_cart' item.id %}" style="color: #ff4757; text-decoration: none; font-size: 0.9rem;">
+                            <i class="fas fa-trash"></i> 
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div style="margin-top: 40px; border-top: 2px dashed #ffafbd; padding-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+            
+            <a href="{% url 'home' %}" style="color: #666; text-decoration: none; display: flex; align-items: center; gap: 5px; transition: 0.3s;">
+                <i class="fas fa-arrow-left"></i> Continue Shopping
+            </a>
+
+            <div style="text-align: right;">
+                <h2 style="margin: 0 0 10px; color: #444;">Total: <span style="color: #ff6b81; font-size: 2rem;">৳{{ total_price }}</span></h2>
+                <a href="{% url 'checkout' %}" class="btn-cute" style="display: inline-block; text-decoration: none; padding: 12px 30px; font-size: 1.1rem;">
+                    Proceed to Checkout 🎀
+                </a>
+            </div>
+        </div>
+
+    {% else %}
+        <div style="text-align: center; padding: 50px;">
+            <p style="font-size: 1.2rem; color: #888; margin-bottom: 20px;">Your cart is empty! 🍰</p>
+            <a href="{% url 'home' %}" class="btn-cute">Go Shopping</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

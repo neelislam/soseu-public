@@ -1,0 +1,461 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* --- 1. PRODUCT CARDS & DRAWER --- */
+    .product-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        position: relative;
+        transition: transform 0.3s ease;
+        flex: 0 0 280px;
+    }
+
+    .img-container {
+        height: 250px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .img-container img {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    /* Drawer Effect */
+    .product-drawer {
+        position: absolute;
+        top: 0; right: 0; bottom: 0;
+        width: 70%;
+        background: var(--drawer-bg);
+        backdrop-filter: blur(8px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 15px;
+        transform: translateX(101%);
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        z-index: 2;
+    }
+
+    .product-card:hover .product-drawer,
+    .product-card.active-tap .product-drawer {
+        transform: translateX(0);
+    }
+
+    .product-card:hover img { transform: scale(1.1); }
+    .product-drawer h4 { margin: 0 0 5px; color: #ff6b81; font-size: 1.1rem; }
+    .product-drawer p { font-size: 0.85rem; text-align: center; line-height: 1.4; margin-bottom: 15px; }
+
+    /* NEW BUTTON STYLE FOR VIEW MORE */
+    .btn-view-more {
+        background: white; color: #ff6b81;
+        border: 2px solid #ff6b81; padding: 6px 15px;
+        border-radius: 20px; font-size: 0.8rem; font-weight: bold;
+        cursor: pointer; transition: 0.3s;
+    }
+    .btn-view-more:hover { background: #ff6b81; color: white; }
+
+    /* --- 2. CAROUSEL & GRID --- */
+    .carousel-wrapper { width: 100%; max-width: 1200px; margin: 0 auto; overflow: hidden; padding: 20px 0; }
+    .carousel-track { display: flex; gap: 25px; transition: transform 0.5s ease; padding: 10px; cursor: grab; }
+    .carousel-track:active { cursor: grabbing; }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px; padding: 20px; max-width: 1200px; margin: 0 auto;
+    }
+
+    @media (max-width: 600px) {
+        .product-grid { grid-template-columns: 1fr; }
+        .carousel-card { flex: 0 0 85%; }
+        .product-drawer { width: 85%; }
+    }
+
+    /* --- 3. REVIEWS & ANIMATIONS --- */
+    .reviews-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; overflow: hidden; }
+    .floating-img { position: absolute; width: 280px; height: auto; opacity: 0.15; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); filter: grayscale(30%); }
+
+    .p1 { top: -10%; left: -5%; animation: wave 25s infinite alternate; }
+    .p2 { top: 5%; left: 70%; animation: wave 28s infinite alternate-reverse; }
+    .p3 { top: 60%; left: -10%; animation: wave 30s infinite alternate; }
+    .p4 { top: 50%; left: 80%; animation: wave 22s infinite alternate-reverse; }
+    .p5 { top: 30%; left: 10%; animation: wave 35s infinite alternate; }
+    .p6 { top: -5%; left: 35%; animation: wave 24s infinite alternate-reverse; }
+    .p7 { top: 75%; left: 40%; animation: wave 32s infinite alternate; }
+    .p8 { top: 20%; left: 50%; animation: wave 29s infinite alternate-reverse; }
+    .p9 { top: 40%; left: 65%; animation: wave 27s infinite alternate; }
+    .p10 { top: 10%; left: 20%; animation: wave 31s infinite alternate-reverse; }
+
+    @keyframes wave {
+        0% { transform: translate(0, 0) rotate(0deg); }
+        33% { transform: translate(40px, -60px) rotate(5deg); }
+        66% { transform: translate(-30px, 40px) rotate(-5deg); }
+        100% { transform: translate(20px, -20px) rotate(2deg); }
+    }
+    @media (max-width: 768px) { .floating-img { width: 160px; opacity: 0.12; } }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.85); border: 2px solid rgba(255, 255, 255, 0.6);
+        color: #4a4a4a; padding: 50px; border-radius: 40px; backdrop-filter: blur(15px);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1); display: inline-block;
+    }
+    [data-theme="dark"] .glass-card {
+        background: rgba(30, 30, 30, 0.85); border: 2px solid rgba(255, 255, 255, 0.1); color: #e0e0e0;
+    }
+
+    /* --- 4. PRODUCT MODAL STYLES --- */
+    .modal-overlay {
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.7); z-index: 5000; backdrop-filter: blur(5px);
+        justify-content: center; align-items: center; padding: 20px;
+    }
+    .modal-content {
+        background: var(--card-bg); width: 100%; max-width: 900px;
+        border-radius: 20px; overflow: hidden; display: flex;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3); position: relative;
+        max-height: 90vh; overflow-y: auto;
+    }
+    .modal-left { flex: 1; background: #000; position: relative; min-height: 400px; display: flex; align-items: center; justify-content: center;}
+    .modal-right { flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center; }
+
+    .modal-main-img { width: 100%; height: 100%; object-fit: contain; max-height: 500px; }
+    .thumbnail-container {
+        position: absolute; bottom: 20px; left: 0; width: 100%;
+        display: flex; justify-content: center; gap: 10px; padding: 0 20px;
+    }
+    .thumb { width: 50px; height: 50px; border-radius: 8px; border: 2px solid white; cursor: pointer; object-fit: cover; transition: 0.2s; opacity: 0.7;}
+    .thumb:hover, .thumb.active { transform: scale(1.1); opacity: 1; border-color: #ff6b81; }
+
+    .modal-close { position: absolute; top: 20px; right: 25px; font-size: 2rem; cursor: pointer; color: var(--text-muted); z-index: 10; }
+
+    @media (max-width: 768px) {
+        .modal-content { flex-direction: column; }
+        .modal-left { height: 300px; }
+    }
+
+    .social-btn {
+        display: inline-block; padding: 10px 25px; margin: 10px; border-radius: 50px;
+        color: white; text-decoration: none; font-weight: bold; transition: transform 0.2s;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .btn-fb { background: #1877F2; }
+    .btn-insta { background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); }
+</style>
+
+<div style="text-align: center; padding: 40px 20px;">
+    <h1 style="font-family: 'Pacifico', cursive; font-size: 3rem; color: #ff6b81; margin:0;">Treat Yourself! 🍰</h1>
+    <p style="color: var(--text-muted);">Homemade Cakes & Delicious Bites.</p>
+</div>
+
+<div id="new-arrivals">
+    <h2 style="text-align: center; font-family: 'Pacifico', cursive; font-size: 2.2rem;">✨ New Arrivals ✨</h2>
+    <div class="carousel-wrapper">
+        <div class="carousel-track" id="track">
+            {% for product in trending %}
+            <div class="product-card carousel-card" onclick="this.classList.toggle('active-tap')">
+                <div class="img-container">
+                    {% if product.image %}<img src="{{ product.image.url }}">{% endif %}
+                    <div class="product-drawer">
+                        <h4>✨ Details</h4>
+                        <p>{{ product.description|truncatewords:10 }}</p>
+                        <button class="btn-view-more"
+                            onclick="openProductModal('{{ product.name }}', '{{ product.get_price }}', '{{ product.description|escapejs }}', '{% if product.image %}{{ product.image.url }}{% endif %}', '{% for img in product.images.all %}{% if img.image %}{{ img.image.url }},{% endif %}{% endfor %}')">
+                            View More
+                        </button>
+                    </div>
+                </div>
+                <div style="padding: 15px; text-align: center; background: var(--card-bg);">
+                    <h3 style="margin:0;">{{ product.name }}</h3>
+                    <p style="color: #ff6b81; font-weight: bold;">৳{{ product.get_price }}</p>
+                    <a href="{% url 'add_to_cart' product.id %}" class="btn-cute" style="text-decoration:none;">Add to Cart 🛒</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div id="special-sections" style="max-width: 1200px; margin: 0 auto;">
+    {% if signature_items %}
+    <div id="signature" style="padding: 40px 20px;">
+        <h2 style="text-align: center; font-family: 'Pacifico', cursive; font-size: 2.2rem; color: #ff6b81;">💖 Signature Items</h2>
+        <div class="product-grid">
+            {% for product in signature_items %}
+                <div class="product-card" onclick="this.classList.toggle('active-tap')">
+                    <div class="img-container">
+                        {% if product.image %}<img src="{{ product.image.url }}">{% endif %}
+                        <div class="product-drawer">
+                            <h4>✨ Signature</h4>
+                            <p>{{ product.description|truncatewords:10 }}</p>
+                            <button class="btn-view-more"
+                                onclick="openProductModal('{{ product.name }}', '{{ product.get_price }}', '{{ product.description|escapejs }}', '{% if product.image %}{{ product.image.url }}{% endif %}', '{% for img in product.images.all %}{% if img.image %}{{ img.image.url }},{% endif %}{% endfor %}')">
+                                View More
+                            </button>
+                        </div>
+                    </div>
+                    <div style="padding: 15px; text-align: center;">
+                        <h3 style="margin:0;">{{ product.name }}</h3>
+                        <p style="color: #ff6b81; font-weight: bold;">৳{{ product.get_price }}</p>
+                        <a href="{% url 'add_to_cart' product.id %}" class="btn-cute" style="text-decoration:none;">Add to Cart</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if weekly_offers %}
+    <div id="offers" style="padding: 40px 20px; background: rgba(255, 107, 129, 0.05); border-radius: 30px; margin: 20px;">
+        <h2 style="text-align: center; font-family: 'Pacifico', cursive; font-size: 2.2rem; color: #ff4757;">🔥 Hot Offers</h2>
+        <div class="product-grid">
+            {% for product in weekly_offers %}
+                <div class="product-card" style="border: 2px solid #ff4757;">
+                    <div class="img-container">
+                        <div style="position: absolute; top: 10px; left: 10px; background: #ff4757; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; z-index: 5; font-weight: bold;">OFFER!</div>
+                        {% if product.image %}<img src="{{ product.image.url }}">{% endif %}
+                    </div>
+                    <div style="padding: 15px; text-align: center;">
+                        <h3 style="margin:0;">{{ product.name }}</h3>
+                        <p style="color: #ff4757; font-weight: bold; font-size: 1.2rem;">৳{{ product.get_price }}</p>
+                        <a href="{% url 'add_to_cart' product.id %}" class="btn-cute" style="background:#ff4757; text-decoration:none;">Grab Deal</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% for category in all_categories %}
+    <div id="cat-{{ category.id }}" style="padding: 40px 0;">
+        <h2 style="text-align: center; font-family: 'Pacifico', cursive; font-size: 2rem;">{{ category.name }}</h2>
+        <div class="product-grid">
+            {% for product in products %}
+                {% if product.category == category %}
+                <div class="product-card" onclick="this.classList.toggle('active-tap')">
+                    <div class="img-container">
+                        {% if product.image %}<img src="{{ product.image.url }}">{% endif %}
+                        <div class="product-drawer">
+                            <h4>✨ Details</h4>
+                            <p>{{ product.description|truncatewords:10 }}</p>
+                            <button class="btn-view-more"
+                                onclick="openProductModal('{{ product.name }}', '{{ product.get_price }}', '{{ product.description|escapejs }}', '{% if product.image %}{{ product.image.url }}{% endif %}', '{% for img in product.images.all %}{% if img.image %}{{ img.image.url }},{% endif %}{% endfor %}')">
+                                View More
+                            </button>
+                        </div>
+                    </div>
+                    <div style="padding: 15px; text-align: center;">
+                        <h3 style="margin:0;">{{ product.name }}</h3>
+                        <p style="color: #ff6b81; font-weight: bold;">৳{{ product.get_price }}</p>
+                        <a href="{% url 'add_to_cart' product.id %}" class="btn-cute" style="text-decoration:none;">+ Cart</a>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endfor %}
+
+<section id="reviews-section" style="position: relative; overflow: hidden; padding: 100px 20px; background: var(--bg-color); min-height: 600px; display: flex; align-items: center; justify-content: center;">
+    <div class="reviews-bg">
+        <img src="{% static 'review1.jpg' %}" class="floating-img p1" alt="Review">
+        <img src="{% static 'review2.jpg' %}" class="floating-img p2" alt="Review">
+        <img src="{% static 'review3.jpg' %}" class="floating-img p3" alt="Review">
+        <img src="{% static 'review4.jpg' %}" class="floating-img p4" alt="Review">
+        <img src="{% static 'review5.jpg' %}" class="floating-img p5" alt="Review">
+        <img src="{% static 'review6.jpg' %}" class="floating-img p6" alt="Review">
+        <img src="{% static 'review7.jpg' %}" class="floating-img p7" alt="Review">
+        <img src="{% static 'review8.jpg' %}" class="floating-img p8" alt="Review">
+        <img src="{% static 'review9.jpg' %}" class="floating-img p9" alt="Review">
+        <img src="{% static 'review10.jpg' %}" class="floating-img p10" alt="Review">
+    </div>
+    <div style="position: relative; z-index: 10; max-width: 800px; text-align: center;">
+        <div class="glass-card">
+            <h2 style="font-family: 'Pacifico', cursive; font-size: 3rem; color: #ff6b81; margin-bottom: 20px;">What Our Lovers Say 💖</h2>
+            <p style="font-size: 1.2rem; line-height: 1.8; font-weight: 500;">
+                At Soseu, every review is a love letter.
+                Our customers don't just eat; they experience a symphony of flavors that
+                turn arguments into smiles and period rages into peaceful cravings.
+            </p>
+        </div>
+    </div>
+</section>
+
+<div id="order-info" style="background: var(--card-bg); padding: 60px 20px; text-align: center; border-top: 1px dashed #ffafbd;">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <h2 style="color: #ff6b81; font-family: 'Pacifico', cursive; font-size: 2.2rem; margin-bottom: 30px;">
+            🚚 Delivery & Order Confirmation
+        </h2>
+        <div style="background: var(--bg-color); border-radius: 20px; padding: 30px; display: inline-block; width: 100%; max-width: 600px;">
+            <p style="font-size: 1.1rem; font-weight: bold; margin-bottom: 15px; color: var(--text-color);">
+                🍫 Brownies: <span style="color: #ff6b81;">Available all over BD! 🇧🇩</span>
+            </p>
+            <p style="font-size: 1.1rem; font-weight: bold; margin-bottom: 25px; color: var(--text-color);">
+                🎂 Cakes & Other Items: <span style="color: #ff6b81;">Delivery Only Dhaka 🏙️</span>
+            </p>
+            <hr style="border: 0; border-top: 1px dashed #ffafbd; margin: 20px 0;">
+            <p style="font-size: 1rem; margin-bottom: 20px; color: var(--text-color);">
+                <i class="fas fa-info-circle"></i> After placing your order, please <strong>Copy your Order ID</strong> and send it to our Facebook or Instagram page to confirm!
+            </p>
+            <div>
+                <a href="https://www.facebook.com/queenexxxx" target="_blank" class="social-btn btn-fb">
+                    <i class="fab fa-facebook-f"></i> Message on Facebook
+                </a>
+                <a href="https://www.instagram.com/signature_by_soseu__/" target="_blank" class="social-btn btn-insta">
+                    <i class="fab fa-instagram"></i> Message on Instagram
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="productModal" class="modal-overlay" onclick="closeProductModal(event)">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeProductModal()">&times;</span>
+
+        <div class="modal-left">
+            <img id="modalMainImg" class="modal-main-img" src="" alt="Product">
+            <div id="modalThumbnails" class="thumbnail-container">
+                </div>
+        </div>
+
+        <div class="modal-right">
+            <h2 id="modalTitle" style="font-family: 'Pacifico', cursive; color: #ff6b81; font-size: 2.5rem; margin-bottom: 10px;"></h2>
+            <h3 id="modalPrice" style="color: var(--text-color); font-size: 1.5rem; margin-top: 0;"></h3>
+            <p id="modalDesc" style="line-height: 1.6; color: var(--text-muted); margin-bottom: 30px;"></p>
+            <button class="btn-cute" style="width: 100%; padding: 15px; font-size: 1.1rem;">Add to Cart 🛒</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- MODAL LOGIC ---
+    function openProductModal(name, price, desc, mainImg, extraImagesString) {
+        document.getElementById('productModal').style.display = 'flex';
+        document.getElementById('modalTitle').innerText = name;
+        document.getElementById('modalPrice').innerText = '৳' + price;
+        document.getElementById('modalDesc').innerText = desc;
+
+        const mainImgElem = document.getElementById('modalMainImg');
+        mainImgElem.src = mainImg;
+
+        // Handle Images
+        const thumbContainer = document.getElementById('modalThumbnails');
+        thumbContainer.innerHTML = ''; // Clear old thumbs
+
+        // Add Main Image as first thumb (Check if not empty)
+        let images = [];
+        if (mainImg) {
+            images.push(mainImg);
+        }
+
+        // Add extra images if they exist
+        if(extraImagesString) {
+            const cleanString = extraImagesString.replace(/,$/, '');
+            const extras = cleanString.split(',').filter(url => url.trim().length > 0);
+            images = images.concat(extras);
+        }
+
+        // Generate Thumbnails
+        if (images.length > 1) {
+            images.forEach((url, index) => {
+                const img = document.createElement('img');
+                img.src = url;
+                img.classList.add('thumb');
+                if(index === 0) img.classList.add('active');
+
+                img.onclick = function() {
+                    mainImgElem.src = url;
+                    document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                };
+                thumbContainer.appendChild(img);
+            });
+        }
+    }
+
+    function closeProductModal(e) {
+        // Close if clicked on overlay OR the close button
+        if (!e || e.target.classList.contains('modal-overlay')) {
+            document.getElementById('productModal').style.display = 'none';
+        }
+    }
+
+    // --- CAROUSEL LOGIC ---
+    document.addEventListener('DOMContentLoaded', function() {
+        const track = document.getElementById('track');
+        if (!track) return;
+        const cards = track.children;
+        if (cards.length === 0) return;
+
+        let currentIndex = 0;
+        let startX = 0;
+        let isDragging = false;
+        let autoSlideInterval;
+
+        function updateSlider() {
+            const cardWidth = cards[0].offsetWidth + 25;
+            track.style.transition = "transform 0.5s ease";
+            track.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+        }
+
+        function startAutoSlide() {
+            autoSlideInterval = setInterval(() => {
+                currentIndex = (currentIndex + 1) % cards.length;
+                updateSlider();
+            }, 4000);
+        }
+
+        function stopAutoSlide() { clearInterval(autoSlideInterval); }
+
+        const handleStart = (e) => {
+            startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            isDragging = true;
+            stopAutoSlide();
+            track.style.transition = "none";
+        };
+
+        const handleMove = (e) => {
+            if (!isDragging) return;
+            const currentX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const diff = currentX - startX;
+            const cardWidth = cards[0].offsetWidth + 25;
+            const moveX = -(currentIndex * cardWidth) + diff;
+            track.style.transform = `translateX(${moveX}px)`;
+        };
+
+        const handleEnd = (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            const endX = e.type.includes('touch') ? e.changedTouches[0].clientX : e.clientX;
+            const diff = startX - endX;
+
+            if (Math.abs(diff) > 50) {
+                if (diff > 0 && currentIndex < cards.length - 1) {
+                    currentIndex++;
+                } else if (diff < 0 && currentIndex > 0) {
+                    currentIndex--;
+                }
+            }
+            updateSlider();
+            startAutoSlide();
+        };
+
+        track.addEventListener('touchstart', handleStart);
+        track.addEventListener('touchmove', handleMove);
+        track.addEventListener('touchend', handleEnd);
+        track.addEventListener('mousedown', handleStart);
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleEnd);
+
+        startAutoSlide();
+        window.addEventListener('resize', updateSlider);
+    });
+</script>
+{% endblock %}

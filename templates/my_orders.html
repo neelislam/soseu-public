@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 50px auto; padding: 20px;">
+    <h1 style="text-align: center; color: #ff6b81; font-family: 'Pacifico', cursive; margin-bottom: 30px;">My Orders 📦</h1>
+
+    {% for order in orders %}
+    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 5px solid #ffafbd;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+            <div>
+                <h3 style="margin: 0 0 5px; color: #444;">Order #{{ order.order_id }}</h3>
+                <p style="color: #888; font-size: 0.9rem;">Placed on: {{ order.created_at|date:"M d, Y" }}</p>
+                
+                <span style="background: #eee; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; color: #555;">
+                    Status: {{ order.status }}
+                </span>
+            </div>
+            
+            <div style="text-align: right;">
+                <p style="font-weight: bold; font-size: 1.2rem; color: #ff6b81;">Total: ৳{{ order.total_amount }}</p>
+            </div>
+        </div>
+        
+        <hr style="border: 0; border-top: 1px dashed #eee; margin: 15px 0;">
+        
+        <div style="display: flex; gap: 10px; overflow-x: auto;">
+            {% for item in order.items.all %}
+                <div style="text-align: center; min-width: 80px;">
+                    {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" style="width: 50px; height: 50px; border-radius: 10px; object-fit: cover;">
+                    {% endif %}
+                    <p style="font-size: 0.8rem; margin: 5px 0;">x{{ item.quantity }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% empty %}
+    <p style="text-align: center;">You haven't placed any orders yet!</p>
+    {% endfor %}
+</div>
+{% endblock %}

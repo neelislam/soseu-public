@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 50px auto; padding: 30px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+    <h1 style="text-align: center; color: #ff6b81; font-family: 'Pacifico', cursive;">Confirm Your Order 📝</h1>
+    
+    <div style="background: #fff0f3; padding: 20px; border-radius: 15px; margin: 20px 0;">
+        <h3 style="margin-top: 0; color: #444;">Shipping Details</h3>
+        <p><strong>Name:</strong> {{ user.username }}</p>
+        <p><strong>Phone:</strong> {{ profile.phone }}</p>
+        <p><strong>Address:</strong> {{ profile.address }}</p>
+        <p style="font-size: 0.9rem; color: #888;">(Details taken from your profile)</p>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <h3 style="color: #444;">Order Summary</h3>
+        {% for item in cart_items %}
+        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #ddd;">
+            <span>{{ item.product.name }} (x{{ item.quantity }})</span>
+            <span>৳{{ item.total_cost }}</span>
+        </div>
+        {% endfor %}
+        <h2 style="text-align: right; color: #ff6b81; margin-top: 20px;">Total: ৳{{ total_price }}</h2>
+    </div>
+
+<form method="POST">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 20px;">
+            <label style="font-weight: bold; color: #444;">Full Name:</label>
+            <input type="text" name="full_name" 
+                   value="{% if user.first_name %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}" 
+                   style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 10px;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="font-weight: bold; color: #444;">Phone Number:</label>
+            <input type="text" name="phone" 
+                   value="{{ profile.phone }}" 
+                   placeholder="Your Valid Phone Number (e.g. 017...)" 
+                   required
+                   style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 10px;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="font-weight: bold; color: #444;">Delivery Address:</label>
+            <textarea name="address" 
+                      placeholder="Your full address here..." 
+                      required
+                      style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 10px; height: 100px;">{{ profile.address }}</textarea>
+        </div>
+
+        <button type="submit" class="btn-cute" style="width: 100%; font-size: 1.2rem;">Place Order Now! 🎁</button>
+    </form>
+</div>
+{% endblock %}

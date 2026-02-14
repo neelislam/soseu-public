@@ -1,0 +1,20 @@
+# Secrets
+.env
+
+# Database (Contains user data!)
+db.sqlite3
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# Media (User uploads)
+media/
+
+# Virtual Environment
+venv/
+myenv/
+.virtualenvs/
+
+# OS generated files
+.DS_Store

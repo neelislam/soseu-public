@@ -1,0 +1,243 @@
+{% load static %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="google-site-verification" content="6I6lrFXPKtSN4yYlBQ4Rxl07BirUpI4y5wNOQjdeycA" />
+    <meta name="description" content="Soseu - The best homemade brownies and cakes in Dhaka. Order online for delivery!">
+    <meta name="keywords" content="brownies, cake, dhaka, homemade, dessert, delivery">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soseu</title>
+    <link rel="shortcut icon" type="image/png" href="{% static 'logo.png' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fff0f3;
+            --card-bg: #ffffff;
+            --text-color: #4a4a4a;
+            --text-muted: #666666;
+            --nav-bg: rgb(161, 37, 37);
+            --topbar-bg: rgb(161, 37, 37);
+            --dropdown-bg: #ffffff;
+            --border-color: #ffafbd;
+            --shadow: 0 4px 15px rgba(255, 175, 189, 0.2);
+            --accent: #ff6b81;
+            --drawer-bg: rgba(255, 255, 255, 0.98);
+        }
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --nav-bg: #2d0a0a;
+            --topbar-bg: #1a0505;
+            --dropdown-bg: #2d0a0a;
+            --border-color: #444;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            --drawer-bg: rgba(30, 30, 30, 0.98);
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0; padding: 0;
+            transition: background-color 0.3s;
+            overflow-x: hidden;
+        }
+        nav {
+            background: var(--nav-bg);
+            padding: 0.5rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .logo-container a { display: flex; align-items: center; text-decoration: none; transition: 0.3s; }
+        .logo-container a:hover { transform: scale(1.05); }
+        .logo-container img { max-height: 45px; width: auto; }
+        .brand-text { color: white; margin-left: 8px; line-height: 1.1; }
+        .nav-links { display: flex; align-items: center; gap: 20px; }
+        .nav-links a {
+            color: white; text-decoration: none; font-weight: 500; font-size: 0.9rem;
+            transition: 0.3s; padding: 5px 10px; border-radius: 20px;
+        }
+        .nav-links a:hover { background: rgba(255,255,255,0.1); }
+
+        .dropdown { position: relative; }
+        .dropdown-content {
+            display: none; position: absolute; background-color: var(--dropdown-bg);
+            min-width: 200px; border-radius: 12px; top: 110%; left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            padding: 10px 0; border: 1px solid var(--border-color);
+        }
+        .dropdown:hover .dropdown-content { display: block; animation: fadeIn 0.3s ease; }
+        .dropdown-content a {
+            color: var(--text-color) !important; padding: 10px 20px;
+            display: block; border-radius: 0; font-size: 0.85rem;
+        }
+        .dropdown-content a:hover { background: var(--bg-color) !important; color: var(--accent) !important; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+        .btn-cute {
+            background: var(--accent); color: white !important;
+            padding: 8px 20px; border-radius: 50px; border: none;
+            font-weight: 600; cursor: pointer; transition: 0.3s;
+            box-shadow: 0 4px 10px rgba(255, 107, 129, 0.3);
+            text-decoration: none; display: inline-block; font-size: 0.9rem;
+        }
+        .btn-cute:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(255, 107, 129, 0.4); opacity: 0.9; }
+
+        .menu-toggle { display: none; color: white; font-size: 1.5rem; cursor: pointer; }
+        .mobile-drawer {
+            position: fixed; top: 0; right: -100%; width: 280px; height: 100%;
+            background: var(--drawer-bg); z-index: 2000; transition: 0.4s;
+            box-shadow: -10px 0 20px rgba(0,0,0,0.1); padding: 25px;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+        .mobile-drawer.active { right: 0; }
+        .mobile-drawer a {
+            color: var(--text-color); font-size: 1rem; text-decoration: none;
+            padding: 12px 15px; border-radius: 12px; transition: 0.3s;
+            background: rgba(0,0,0,0.02);
+        }
+        .mobile-drawer a:hover { background: var(--bg-color); color: var(--accent); }
+
+        @media (max-width: 992px) {
+            .nav-links { display: none; }
+            .menu-toggle { display: block; }
+            .top-bar { display: none; }
+        }
+        .top-bar {
+            background-color: var(--topbar-bg); color: white; padding: 8px;
+            display: flex; justify-content: center; gap: 30px; font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+        .top-bar a { color: white; text-decoration: none; transition: 0.3s; }
+        .top-bar a:hover { opacity: 0.8; }
+        footer {
+            background: linear-gradient(to right, #ffafbd, #ffc3a0);
+            color: white; padding: 50px 20px; text-align: center;
+        }
+        [data-theme="dark"] footer { background: #1a0505; }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="https://www.instagram.com/signature_by_soseu__/" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>
+        <a href="https://www.facebook.com/queenexxxx" target="_blank"><i class="fab fa-facebook"></i> Facebook</a>
+    </div>
+    <nav>
+        <div class="logo-container">
+            <a href="{% url 'home' %}">
+                <img src="{% static 'logo.png' %}" alt="Soseu Logo">
+                <div class="brand-text">
+                    <span style="font-size: 0.9rem; font-weight: bold; letter-spacing: 1px;">소스</span><br>
+                    <span style="font-family: 'Great Vibes', cursive; font-size: 1.5rem;">Soseu</span>
+                </div>
+            </a>
+        </div>
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            <div class="dropdown">
+                <a href="#">Products <i class="fa fa-chevron-down" style="font-size: 0.7rem;"></i></a>
+                <div class="dropdown-content">
+                    {% for cat in categories %}
+                    <a href="{% url 'home' %}#cat-{{ cat.id }}">{{ cat.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            <a href="{% url 'home' %}#signature">Signature</a>
+            <a href="{% url 'home' %}#reviews-section">Reviews</a>
+            <a href="{% url 'home' %}#order-info">Order</a>
+
+            {% if user.is_authenticated %}
+                <a href="#" onclick="openProfileModal()">👤 {{ user.username }}</a>
+                <a href="{% url 'logout' %}" style="color: #ffafbd;">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+            {% endif %}
+            <a href="{% url 'cart' %}" style="background: white; color: var(--nav-bg); padding: 8px 18px; border-radius: 50px; font-weight: bold;">🛒 {{ cart_count }}</a>
+            <button onclick="toggleTheme()" id="theme-btn" style="background:none; border:none; cursor:pointer; font-size: 1.2rem;">🌙</button>
+        </div>
+        <div class="menu-toggle" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+    <div class="mobile-drawer" id="mobileDrawer">
+        <div style="text-align: right; font-size: 2rem; color: var(--accent); cursor: pointer;" onclick="toggleMobileMenu()">&times;</div>
+        {% if user.is_authenticated %}
+            <div style="padding: 15px; background: var(--bg-color); border-radius: 15px; margin-bottom: 10px; text-align: center;">
+                <span style="font-weight: bold; color: var(--accent);">Hello, {{ user.username }}! 🍰</span>
+            </div>
+        {% endif %}
+        <a href="{% url 'home' %}" onclick="toggleMobileMenu()"><i class="fa fa-home"></i> Home</a>
+        <a href="{% url 'cart' %}" onclick="toggleMobileMenu()"><i class="fa fa-shopping-cart"></i> My Cart ({{ cart_count }})</a>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--bg-color); border-radius: 15px; margin-top: 5px;">
+            <span style="font-weight: 500; font-size: 0.9rem;">Theme</span>
+            <button onclick="toggleTheme()" id="mobile-theme-btn" class="btn-cute" style="padding: 5px 15px; font-size: 0.8rem; box-shadow: none;">🌙 Night Mode</button>
+        </div>
+        <a href="{% url 'home' %}#signature" onclick="toggleMobileMenu()"><i class="fa fa-star"></i> Signature Items</a>
+        <a href="{% url 'home' %}#reviews-section" onclick="toggleMobileMenu()"><i class="fa fa-heart"></i> Reviews</a>
+        <a href="{% url 'home' %}#order-info" onclick="toggleMobileMenu()"><i class="fa fa-truck"></i> Order Info</a>
+
+        {% if user.is_authenticated %}
+            <a href="#" onclick="openProfileModal(); toggleMobileMenu()"><i class="fa fa-user-edit"></i> Edit Profile / Orders</a>
+            <a href="{% url 'logout' %}" style="color: #ff4757;"><i class="fa fa-sign-out-alt"></i> Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}"><i class="fa fa-sign-in-alt"></i> Login</a>
+        {% endif %}
+    </div>
+    {% block content %}{% endblock %}
+    <footer>
+        <h2 style="font-family: 'Great Vibes', cursive; font-size: 2.5rem; margin-bottom: 10px;">Thank you! 💖</h2>
+        <p style="opacity: 0.9;">📍 Adabor, Dhaka</p>
+        <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 20px;">Made with L❤️VE by Soseu</p>
+    </footer>
+    <div id="profileModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div style="background: var(--card-bg); width: 90%; max-width: 400px; padding: 30px; border-radius: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+             <span onclick="closeProfileModal()" style="float:right; cursor:pointer; font-size: 1.5rem; color: var(--accent);">&times;</span>
+
+             <div style="text-align: center; margin-bottom: 20px;">
+                 <a href="{% url 'my_orders' %}" class="btn-cute" style="width: 100%; box-sizing: border-box; background: var(--nav-bg); display: block;">
+                    <i class="fa fa-box-open"></i> View My Orders
+                 </a>
+                 <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--border-color);">
+             </div>
+
+             <h3 style="color: var(--accent); margin-top: 0;">Edit Profile ✏️</h3>
+             <form action="{% url 'update_profile' %}" method="POST">
+                {% csrf_token %}
+                <input type="text" name="first_name" placeholder="First Name" value="{{ user.first_name }}" style="width:100%; margin-bottom:15px; padding:12px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-color); color: var(--text-color); box-sizing: border-box;">
+                <input type="text" name="last_name" placeholder="Last Name" value="{{ user.last_name }}" style="width:100%; margin-bottom:20px; padding:12px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-color); color: var(--text-color); box-sizing: border-box;">
+                <button type="submit" class="btn-cute" style="width:100%;">Update Profile</button>
+             </form>
+        </div>
+    </div>
+    <script>
+        function toggleMobileMenu() { document.getElementById('mobileDrawer').classList.toggle('active'); }
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute("data-theme");
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            html.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+            const btnText = newTheme === "dark" ? "☀️ Day Mode" : "🌙 Night Mode";
+            const desktopBtn = document.getElementById("theme-btn");
+            const mobileBtn = document.getElementById("mobile-theme-btn");
+            if (desktopBtn) desktopBtn.innerText = newTheme === "dark" ? "☀️" : "🌙";
+            if (mobileBtn) mobileBtn.innerText = btnText;
+        }
+        const savedTheme = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-theme", savedTheme);
+        window.onload = () => {
+            const mobileBtn = document.getElementById("mobile-theme-btn");
+            if (mobileBtn) mobileBtn.innerText = savedTheme === "dark" ? "☀️ Day Mode" : "🌙 Night Mode";
+        };
+        function openProfileModal() { document.getElementById('profileModal').style.display = 'flex'; }
+        function closeProfileModal() { document.getElementById('profileModal').style.display = 'none'; }
+    </script>
+</body>
+</html>

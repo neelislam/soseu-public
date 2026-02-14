@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load account socialaccount %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 50px auto; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); background: #fff; font-family: 'Segoe UI', Tahoma, Geneva, sans-serif; text-align: center;">
+    <h2 style="color: #ff6b6b; margin-bottom: 20px;">{% trans "Welcome Back!" %}</h2>
+
+    <form class="login" method="POST" action="{% url 'account_login' %}" style="display: flex; flex-direction: column; gap: 15px;">
+        {% csrf_token %}
+        
+        <div style="text-align: left;">
+            {{ form.as_p }}
+        </div>
+
+        {% if redirect_field_value %}
+        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+        {% endif %}
+
+        <button class="primaryAction" type="submit" style="background: #ff6b6b; color: white; border: none; padding: 12px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.3s;">
+            {% trans "Sign In" %}
+        </button>
+        
+        <a class="button secondaryAction" href="{% url 'account_reset_password' %}" style="color: #777; font-size: 0.9em; text-decoration: none;">{% trans "Forgot Password?" %}</a>
+    </form>
+
+    <div style="margin: 20px 0; border-bottom: 1px solid #eee; position: relative;">
+        <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #fff; padding: 0 10px; color: #aaa;">OR</span>
+    </div>
+
+    {% get_providers as socialaccount_providers %}
+    {% if socialaccount_providers %}
+        <div class="socialaccount_ballot">
+            <ul class="socialaccount_providers" style="list-style: none; padding: 0;">
+                {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <p style="margin-top: 20px; color: #555;">
+        Don't have an account? <a href="{{ signup_url }}" style="color: #ff6b6b; font-weight: bold;">Sign up here</a>
+    </p>
+</div>
+{% endblock %}

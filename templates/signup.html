@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 50px auto; padding: 30px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center;">
+    <h2 style="font-family: 'Pacifico', cursive; color: #ff6b81;">Join the Family! 🍰</h2>
+    
+    <form method="POST">
+        {% csrf_token %}
+        <div style="margin-bottom: 15px; text-align: left;">
+            <label>Username</label>
+            <input type="text" name="username" required style="width: 100%; padding: 10px; border: 2px solid #ffafbd; border-radius: 10px;">
+        </div>
+        <div style="margin-bottom: 15px; text-align: left;">
+            <label>Email</label>
+            <input type="email" name="email" required style="width: 100%; padding: 10px; border: 2px solid #ffafbd; border-radius: 10px;">
+        </div>
+        <div style="margin-bottom: 15px; text-align: left;">
+            <label>Password</label>
+            <input type="password" name="password" required style="width: 100%; padding: 10px; border: 2px solid #ffafbd; border-radius: 10px;">
+        </div>
+        <div style="margin-bottom: 15px; text-align: left;">
+            <label>Phone Number (For Delivery)</label>
+            <input type="text" name="phone" required style="width: 100%; padding: 10px; border: 2px solid #ffafbd; border-radius: 10px;">
+        </div>
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label>Address (For Delivery)</label>
+            <textarea name="address" required style="width: 100%; padding: 10px; border: 2px solid #ffafbd; border-radius: 10px;"></textarea>
+        </div>
+        <button type="submit" class="btn-cute" style="width: 100%;">Sign Up 🎀</button>
+    </form>
+</div>
+{% endblock %}

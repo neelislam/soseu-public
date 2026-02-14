@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 50px auto; padding: 30px; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center;">
+    <h2 style="font-family: 'Pacifico', cursive; color: #ff6b81;">Welcome Back! 🌸</h2>
+    
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <div style="margin-bottom: 15px; text-align: left;">
+            <label>Username or Phone Number</label>
+            <input type="text" name="username" style="width: 100%; padding: 10px; border: 2px solid #ffafbd; border-radius: 10px;">
+        </div>
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label>Password</label>
+            <input type="password" name="password" style="width: 100%; padding: 10px; border: 2px solid #ffafbd; border-radius: 10px;">
+        </div>
+        <button type="submit" class="btn-cute" style="width: 100%;">Login 💖</button>
+    </form>
+    
+    <p style="margin-top: 20px;">
+        New here? <a href="{% url 'signup' %}" style="color: #ff6b81; font-weight: bold;">Create an Account</a>
+    </p>
+</div>
+
+{% load socialaccount %} 
+<div style="text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 20px;">
+    <p>Or log in with:</p>
+    
+    <form action="{% provider_login_url 'google' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn-cute" style="background: #db4437; width: 100%; border: none; cursor: pointer;">
+            <i class="fab fa-google"></i> Google 💖
+        </button>
+    </form>
+</div>
+{% endblock %}
