@@ -52,5 +52,5 @@ Want to bake this project on your own machine? Follow these steps:
 
 **1. Clone the repository**
 ```bash
-git clone [https://github.com/yourusername/soseu.git](https://github.com/yourusername/soseu.git)
+git clone [https://github.com/neelislam/soseu.git](https://github.com/yourusername/soseu.git)
 cd soseu
